@@ -5,3 +5,5 @@
 [node name="Node" type="Node" parent="." unique_id=706324999]
 
 [node name="Node" type="Node" parent="Node" unique_id=575022512]
+
+[node name="Node2" type="Node" parent="Node" unique_id=54600482]
