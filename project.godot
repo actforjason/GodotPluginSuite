@@ -20,7 +20,7 @@ project/assembly_name="godot-plugin-suite"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/quickly_create_node/plugin.cfg")
+enabled=PackedStringArray("res://addons/kenyoni/plugin_reloader/plugin.cfg", "res://addons/quickly_create_node/plugin.cfg")
 
 [physics]
 

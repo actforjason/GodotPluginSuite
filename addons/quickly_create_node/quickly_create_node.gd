@@ -9,7 +9,7 @@ func _enter_tree():
 
 func _find_scene_tree_control():
 	var base: Control = get_editor_interface().get_base_control()
-	# SceneTreeEditor 是 Godot 内部定义的类名
+	# SceneTreeDock 是唯一标识，SceneTreeEditor不唯一
 	var scene: Node = _find_node_by_class(base, "SceneTreeDock")
 
 	if scene:
@@ -17,11 +17,11 @@ func _find_scene_tree_control():
 		scene_tree = _find_node_by_class(scene, "Tree")
 		if scene_tree:
 			print("成功获取到编辑器场景树 Tree 实例: ", scene_tree)
-			# 你现在可以操作这个 tree 了，比如获取当前选中的 item
+			# 获取当前选中的 item
 			# var selected = tree.get_selected()
 			scene_tree.gui_input.connect(_on_scene_tree_gui_input)
 	else:
-		print("未找到 SceneTreeEditor")
+		print("未找到 SceneTreeDock 控件，无法启用插件功能")
 
 # 辅助函数：按类名递归查找节点
 func _find_node_by_class(root: Node, target_class: String) -> Node:
@@ -41,16 +41,13 @@ func _on_scene_tree_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed \
 	and event.button_index == MOUSE_BUTTON_MIDDLE:
 		var item := scene_tree.get_item_at_position(event.position)
-
 		if item == null:
 			return
 
 		var node_path: NodePath = item.get_metadata(0)
 		var node: Node = get_editor_interface().get_edited_scene_root().get_node(node_path)
-
 		if node == null:
 			return
-
 		print("Middle clicked:", node.name)
 
 		# 1. 选中节点（编辑器 selection）
@@ -62,7 +59,8 @@ func _on_scene_tree_gui_input(event: InputEvent) -> void:
 		scene_tree.grab_focus()
 
 		# 3. 延迟一帧执行 Ctrl+A
-		_send_ctrl_a.call_deferred()
+		# _send_ctrl_a.call_deferred()
+		_send_ctrl_a()
 
 func _send_ctrl_a():
 	var key_event := InputEventKey.new()
@@ -73,11 +71,8 @@ func _send_ctrl_a():
 
 	Input.parse_input_event(key_event)
 
-	# 释放键（可选但推荐）
-	var release_event := InputEventKey.new()
+	# 释放键（可选）
+	# key_event.ctrl_pressed = false
+	# key_event.pressed = false
 
-	release_event.keycode = KEY_A
-	release_event.ctrl_pressed = false
-	release_event.pressed = false
-
-	Input.parse_input_event(release_event)
+	# Input.parse_input_event(key_event)
