@@ -1,14 +1,11 @@
-﻿@tool
-extends EditorPlugin
-
+﻿class_name QuicklyCreateNode extends RefCounted
+	
 var scene_tree: Tree
 var scene_tree_dock: Node
+var _plugin: EditorPlugin
 
-func _enter_tree():
-	# 延迟一下，确保编辑器界面加载完毕
-	_find_scene_tree_control.call_deferred()
-
-func _find_scene_tree_control():
+func perform(plugin: EditorPlugin):
+	_plugin = plugin
 	var base: Control = EditorInterface.get_base_control()
 	# SceneTreeDock 是唯一标识，SceneTreeEditor不唯一
 	scene_tree_dock = base.find_children("Scene", "SceneTreeDock", true, false)[0]
@@ -29,13 +26,13 @@ func _on_node_created(new_node: Node):
 	if new_node:
 		# var edit: LineEdit = scene_tree.find_child("*@LineEdit@*", true, false)
 		# 延迟执行，确保新节点创建后界面更新完毕
-		await get_tree().create_timer(.2).timeout
+		await _plugin.get_tree().create_timer(.2).timeout
 		scene_tree.grab_focus()
 		# scene_tree.edit_selected()
 		# print("edit_selected result: ", )
 
-func _exit_tree():
-	if scene_tree and scene_tree.gui_input.is_connected(_on_scene_tree_gui_input):
+func cleanup():
+	if is_instance_valid(scene_tree) and scene_tree.gui_input.is_connected(_on_scene_tree_gui_input):
 		scene_tree.gui_input.disconnect(_on_scene_tree_gui_input)
 
 func _on_scene_tree_gui_input(event: InputEvent) -> void:
