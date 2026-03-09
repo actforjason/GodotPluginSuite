@@ -8,4 +8,4 @@
 
 * Right Align Tab Bar
 
-  Aligns the tab bar to the right side of the editor window.
+  Aligns the tab bar of `EditorSceneTabs` and `EditorBottomPanel` to the right side of the editor window.
