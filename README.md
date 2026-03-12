@@ -9,3 +9,7 @@
 * Right Align Tab Bar
 
   Aligns the tab bar of `EditorSceneTabs` and `EditorBottomPanel` to the right side of the editor window.
+
+* Only Run
+
+  Add a button to only run the project, without building it. Middle click to use console or stop running.

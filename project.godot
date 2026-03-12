@@ -12,8 +12,13 @@ config_version=5
 
 config/name="godot-plugin-suite"
 run/main_scene="uid://b8kmqkbt6w0po"
-config/features=PackedStringArray("4.6", "Forward Plus")
+config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/extend_to_title=true
+window/ios/hide_status_bar=false
 
 [dotnet]
 
@@ -21,7 +26,7 @@ project/assembly_name="godot-plugin-suite"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/kenyoni/plugin_reloader/plugin.cfg", "res://addons/utility_plugin_suite/plugin.cfg")
+enabled=PackedStringArray("res://addons/kenyoni/plugin_reloader/plugin.cfg", "res://addons/plugin_devtools/plugin.cfg", "res://addons/utility_plugin_suite/plugin.cfg")
 
 [physics]
 
