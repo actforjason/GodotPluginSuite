@@ -1,44 +1,55 @@
-﻿class_name QuicklyCreateNode extends RefCounted
-	
-var scene_tree: Tree
-var scene_tree_dock: Node
+class_name QuicklyCreateNode extends RefCounted
+
+var _scene_tree: Tree
 var _plugin: EditorPlugin
+var _line_edit: LineEdit
+var _popup: Popup
 
 func perform(plugin: EditorPlugin):
 	_plugin = plugin
 	var base: Control = EditorInterface.get_base_control()
-	# SceneTreeDock 是唯一标识，SceneTreeEditor不唯一
-	scene_tree_dock = base.find_children("Scene", "SceneTreeDock", true, false)[0]
-	# print("scene_tree_dock: ", scene_tree_dock.get_path())
+	# SceneTreeDock is the unique identifier, SceneTreeEditor is not unique
+	var scene_tree_dock: Node = base.find_children("Scene", "SceneTreeDock", true, false)[0]
+	# viewport_2d = base.find_child("*@CanvasItemEditorViewport@*", true, false)
+	# viewport_3d = base.find_child("*@Node3DEditorViewport@*", true, false)
 
 	if scene_tree_dock:
-		# SceneTreeEditor 内部包含一个 Tree 控件
-		scene_tree = scene_tree_dock.find_child("*@Tree@*", true, false)
-		# scene_tree = _find_node_by_class(scene_tree_dock, "Tree")
-		if scene_tree:
-			print("成功获取到编辑器场景树 Tree 实例: ", scene_tree.get_path())
-			scene_tree_dock.node_created.connect(_on_node_created) # 监听场景树新建节点的信号，修复焦点问题
-			scene_tree.gui_input.connect(_on_scene_tree_gui_input)
+		# SceneTreeEditor > Tree
+		_scene_tree = scene_tree_dock.find_child("*@Tree@*", true, false)
+		if _scene_tree:
+			print("Successfully obtained the Scene Tree instance: ", _scene_tree.get_path())
+			# Listen to the signal for new nodes in the scene tree, fix focus issue
+			scene_tree_dock.node_created.connect(_on_node_created)
+			_scene_tree.gui_input.connect(_on_scene_tree_gui_input)
+			_line_edit = _scene_tree.find_child("*@LineEdit@*", true, false)
+			_popup = _scene_tree.find_child("*@Popup@*", true, false)
+			_line_edit.gui_input.connect(_on_line_edit_gui_input)
 	else:
-		print("未找到 SceneTreeDock 控件，无法启用插件功能")
+		print("Failed to find SceneTreeDock control, cannot enable plugin functionality")
 
 func _on_node_created(new_node: Node):
 	if new_node:
-		# var edit: LineEdit = scene_tree.find_child("*@LineEdit@*", true, false)
-		# 延迟执行，确保新节点创建后界面更新完毕
-		await _plugin.get_tree().create_timer(.2).timeout
-		scene_tree.grab_focus()
-		# scene_tree.edit_selected()
+		# Delay execution to ensure the new node is created and the interface is updated
+		await _plugin.get_tree().create_timer(.1).timeout
+		# _scene_tree.grab_focus()
+		_scene_tree.edit_selected()
 		# print("edit_selected result: ", )
 
-func cleanup():
-	if is_instance_valid(scene_tree) and scene_tree.gui_input.is_connected(_on_scene_tree_gui_input):
-		scene_tree.gui_input.disconnect(_on_scene_tree_gui_input)
+func _on_line_edit_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed \
+	and event.button_index == MOUSE_BUTTON_MIDDLE:
+		if _line_edit and _line_edit.is_editing():
+			# If currently editing a node name, cancel the edit state to avoid conflicts
+			# _line_edit.unedit()
+			# Hide the popup, otherwise it will block the subsequent Ctrl+A shortcut
+			_popup.hide()
+
+		_send_ctrl_a()
 
 func _on_scene_tree_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed \
 	and event.button_index == MOUSE_BUTTON_MIDDLE:
-		var item := scene_tree.get_item_at_position(event.position)
+		var item := _scene_tree.get_item_at_position(event.position)
 		if item == null:
 			return
 
@@ -48,16 +59,15 @@ func _on_scene_tree_gui_input(event: InputEvent) -> void:
 			return
 		print("Middle clicked:", node.name)
 
-		# 1. 选中节点（编辑器 selection）
 		var selection := EditorInterface.get_selection()
 		selection.clear()
 		selection.add_node(node)
 
-		# 2. 让 SceneTree 获取焦点
-		# scene_tree.grab_focus()
-
-		# 3. 延迟一帧执行 Ctrl+A
 		_send_ctrl_a()
+		# EditorInterface.popup_create_dialog(_on_created, "Node")
+
+func _on_created(type_name: String):
+	return
 
 func _send_ctrl_a():
 	var key_event := InputEventKey.new()
@@ -67,3 +77,9 @@ func _send_ctrl_a():
 	key_event.pressed = true
 
 	Input.parse_input_event(key_event)
+
+func cleanup():
+	if is_instance_valid(_scene_tree):
+		_scene_tree.gui_input.disconnect(_on_scene_tree_gui_input)
+		if is_instance_valid(_line_edit):
+			_line_edit.gui_input.disconnect(_on_line_edit_gui_input)

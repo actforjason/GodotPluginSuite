@@ -24,7 +24,7 @@ func perform(plugin: EditorPlugin):
 	button.add_theme_color_override("icon_normal_color", Color(0, 1.6, 0, 1))
 	button.add_theme_color_override("icon_hover_color", Color(0, 2, 0, 1))
 
-#	button.flat = true  # 背景色不管用
+#	button.flat = true  # background transparent, only show icon
 	var normal_style: StyleBoxFlat = StyleBoxFlat.new()
 	normal_style.bg_color = Color(0.9, 0.9, 0.9, 0)
 	var hover_style: StyleBoxFlat = StyleBoxFlat.new()
@@ -35,7 +35,7 @@ func perform(plugin: EditorPlugin):
 	button.add_theme_stylebox_override("hover", hover_style)
 	button.add_theme_stylebox_override("pressed", pressed_style)
 
-	# 将按钮添加到编辑器的工具栏
+	# Add a button to the editor's toolbar
 #	_plugin.add_control_to_container(EditorPlugin.CONTAINER_TOOLBAR, button)
 	container.add_child(button)
 	container.move_child(button, 1)
@@ -55,7 +55,7 @@ func check_process():
 func _on_button_gui_input(event: InputEvent):
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-		#	stop_playing_scene不能结束独立进程
+			# stop_playing_scene cannot stop the standalone process
 			if game_pid > 0:
 				OS.kill(game_pid)
 				run_project()
@@ -82,25 +82,24 @@ func _update_button():
 func run_project(use_console: bool = false):
 	if timer.is_stopped():
 		timer.start()
-#	_plugin.get_editor_interface().play_main_scene() #仍会构建项目
+	# _plugin.get_editor_interface().play_main_scene() still builds project.
 	var godot_exe: String = OS.get_executable_path()
 	var console_exe: String = godot_exe.get_basename() + ".console.exe"
 	var project_path: String = ProjectSettings.globalize_path("res://")
 	# var output: Array
-	# OS.execute阻塞进程，create_process 不会阻塞编辑器
+	# OS.execute will block the main thread, create_process will not
 	if use_console:
 		game_pid = OS.create_process(console_exe, ["--path", project_path], true)
 	else:
 		game_pid = OS.create_process(godot_exe, ["--path", project_path])
 
 	if game_pid > 0:
-		print("Only Run 进程已启动，PID: ", game_pid)
+		print("Only Run process started, PID: ", game_pid)
 	else:
-		push_error("无法启动Only Run进程")
+		push_error("Failed to start Only Run process")
 #	print(godot_exe + "\n" + project_path)
 
 func cleanup():
-	# 插件卸载时移除按钮，避免内存泄漏或 UI 残留
 	if button:
 #		_plugin.remove_control_from_container(EditorPlugin.CONTAINER_TOOLBAR, button)
 		button.queue_free()

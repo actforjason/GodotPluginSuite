@@ -3,8 +3,7 @@
 
   Middle click to both select node and open Create New Node dialog.
 
-  Grab focus on scene tree instead of viewport after creating a new node.
-
+	Auto enter naming mode after creating a new node, and Middle click to submit the name and open the Create New Node dialog again.
 
 * Right Align Tab Bar
 

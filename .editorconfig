@@ -2,3 +2,16 @@ root = true
 
 [*]
 charset = utf-8
+# 强制所有文件使用 LF
+end_of_line = lf
+# 移除行尾空格
+trim_trailing_whitespace = true
+# 文件末尾插入一个换行符
+insert_final_newline = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+[*.gd]
+indent_style = tab
