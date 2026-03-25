@@ -8,8 +8,10 @@ func perform():
 	if editor_scene_tabs:
 		var editor_scene_tabbar: TabBar = editor_scene_tabs.find_child("@TabBar@*", true, false)
 		editor_scene_tabbar.tab_alignment = TabBar.ALIGNMENT_RIGHT
-		print("Editor scene tabbar aligned right:", editor_scene_tabbar.get_path())
+		# print("Editor scene tabbar aligned right:", editor_scene_tabbar.get_path())
 	if editor_bottom_panel:
-		var editor_bottom_tabbar: TabBar = editor_bottom_panel.find_child("@TabBar@*", false, false)
-		editor_bottom_tabbar.tab_alignment = TabBar.ALIGNMENT_RIGHT
-		print("Editor bottom tabbar aligned right:", editor_bottom_tabbar.get_path())
+		# var tabbars_name : StringName = ""
+		for tabbar in editor_bottom_panel.find_children("@TabBar@*", "TabBar", true, false):
+			tabbar.tab_alignment = TabBar.ALIGNMENT_RIGHT
+			# tabbars_name += tabbar.name + ", "
+		# print("Editor bottom tabbars aligned right:", tabbars_name)

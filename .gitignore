@@ -3,5 +3,6 @@
 /android/
 .vscode/
 addons/kenyoni/
-addons/plugin_devtools/
 .idea/
+# include Symbolic Link
+addons/plugin_devtools

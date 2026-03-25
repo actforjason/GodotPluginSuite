@@ -89,7 +89,7 @@ func run_project(use_console: bool = false):
 	# var output: Array
 	# OS.execute will block the main thread, create_process will not
 	if use_console:
-		game_pid = OS.create_process(console_exe, ["--path", project_path], true)
+		game_pid = OS.create_process(console_exe, ["--path", project_path, "--remote-debug", "tcp://127.0.0.1:6007"], true)
 	else:
 		game_pid = OS.create_process(godot_exe, ["--path", project_path])
 
